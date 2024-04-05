@@ -14,7 +14,7 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import Document from "next/document";
+import { exit } from "process";
 
 export default function PlaylistIdPage({ params }: { params: { id: string } }) {
   const [videos, setVideos] = useState([]);
@@ -22,6 +22,7 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
   const [vLoading, setVLoading] = useState(true);
   const [pLoading, setPLoading] = useState(true);
   const [modal, setModal] = useState(false);
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -33,11 +34,16 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
     const fetchPlaylists = async () => {
       const res = await GetPlaylists();
       const json = await res.json();
+      let found = false;
       for (const item in json) {
         if (json[item].id === parseInt(params.id)) {
           setPlaylist(json[item]);
+          found = true;
           break;
         }
+      }
+      if (!found) {
+        throw new Error("Failed to find playlist");
       }
       setPLoading(false);
     };
@@ -47,7 +53,8 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
 
   const handleModalClose = () => setModal(false);
   const handleModalOpen = () => setModal(true);
-  const handleAdd = (id: number) => {
+
+  const handleAddVideoToPlaylist = (id: number) => {
     // TODO: API call to add to DB and perform checks
     console.log("Adding video id: " + id);
     const button = document.getElementById("button-add-" + id);
@@ -58,7 +65,7 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDeleteVideoFromPlaylist = (id: number) => {
     // TODO: API call to remove from DB and perform checks
     console.log("Deleting video id: " + id);
     const button = document.getElementById("button-remove-" + id);
@@ -69,9 +76,16 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
     }
   };
 
+  // Basic regex search, could be computationally expensive if lots of videos
+  const handleSearch = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setSearch(event.target.value);
+  };
+
   /* 
-    TODO: Implement search, add pagination, separate into reusable components, change
-    remove button into a burger dropdown icon
+    TODO: Add pagination, separate into reusable components, change
+    remove buttons into a burger dropdown icon
   */
 
   return (
@@ -94,13 +108,14 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
               <Col>
                 <VideoItem video={item} />
               </Col>
-              <Col xs={1}>
+              <Col sm={1}>
                 <Button
                   variant="secondary"
                   onClick={() => {
-                    handleDelete(item.id);
+                    handleDeleteVideoFromPlaylist(item.id);
                   }}
                   id={"button-remove-" + item.id}
+                  className="mb-4"
                 >
                   Remove
                 </Button>
@@ -115,23 +130,33 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
           <Modal.Title>Add a video</Modal.Title>
         </Modal.Header>
         <Container className="pt-3">
-          <Form.Control type="text" placeholder="Search a video" />
+          <Form.Control
+            type="text"
+            placeholder="Search a video"
+            value={search}
+            onChange={(e) => {
+              handleSearch(e);
+            }}
+          />
         </Container>
         <Modal.Body>
           <Container>
             {videos.map((item: Video, idx) => {
-              if (!playlist?.videoIds.includes(item.id)) {
+              if (
+                !playlist?.videoIds.includes(item.id) &&
+                item.name.toLowerCase().match(search.toLowerCase())
+              ) {
                 return (
                   <Row key={idx} className="mb-2">
                     <Col>
-                      <h4>{item.name}</h4>
+                      <h5>{item.name}</h5>
                     </Col>
                     <Col xs={2}>
                       <Button
                         variant="secondary"
                         id={"button-add-" + item.id}
                         onClick={() => {
-                          handleAdd(item.id);
+                          handleAddVideoToPlaylist(item.id);
                         }}
                       >
                         Add

@@ -4,7 +4,7 @@ import { GET } from "@/app/api/playlists/route";
 import { PlaylistItem } from "@/components/playlist-item";
 import { Playlist } from "@/interfaces/playlist";
 import Link from "next/link";
-import { Spinner } from "react-bootstrap";
+import { Button, Container, Spinner } from "react-bootstrap";
 
 export default function PlaylistsPage() {
   const [playlists, setPlaylists] = useState([]);
@@ -26,15 +26,24 @@ export default function PlaylistsPage() {
     <>
       <h1>Playlists</h1>
       {loading && <Spinner />}
+      {!loading && (
+        <Container style={{ marginBottom: "2rem", padding: "0" }}>
+          <Button variant="warning" onClick={() => {}} className="mt-2">
+            Add a playlist
+          </Button>
+        </Container>
+      )}
+
       {playlists.map((item: Playlist, idx) => {
         return (
-          <Link
-            href={"/playlists/" + item.id}
-            className="link-underline link-underline-opacity-0 text-black"
-            key={idx}
-          >
-            <PlaylistItem playlist={item} />
-          </Link>
+          <Container key={idx}>
+            <Link
+              href={"/playlists/" + item.id}
+              className="link-underline link-underline-opacity-0 text-black"
+            >
+              <PlaylistItem playlist={item} />
+            </Link>
+          </Container>
         );
       })}
     </>
