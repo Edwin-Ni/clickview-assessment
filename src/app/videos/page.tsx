@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { GET } from "@/app/api/videos/route";
 import VideoItem from "@/components/video-item";
+import { Spinner } from "react-bootstrap";
 
 export default function VideosPage() {
   const [videos, setVideos] = useState([]);
@@ -17,11 +18,12 @@ export default function VideosPage() {
     fetchVideos();
   }, []);
 
-  useEffect(() => {}, [loading]);
+  // TODO: Add ability to add to playlist via dropdown with on hover effect
 
   return (
     <>
       <h1>Videos</h1>
+      {loading && <Spinner />}
       {videos.map((item, idx) => {
         return <VideoItem video={item} key={idx} />;
       })}

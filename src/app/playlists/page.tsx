@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { GET } from "@/app/api/playlists/route";
 import { PlaylistItem } from "@/components/playlist-item";
-import { useRouter } from "next/navigation";
 import { Playlist } from "@/interfaces/playlist";
 import Link from "next/link";
+import { Spinner } from "react-bootstrap";
 
 export default function PlaylistsPage() {
   const [playlists, setPlaylists] = useState([]);
@@ -20,12 +20,12 @@ export default function PlaylistsPage() {
     fetchPlaylists();
   }, []);
 
-  useEffect(() => {}, [loading]);
+  // TODO: Add a modal with form to create a playlist, add dropdowns for playlists
 
   return (
     <>
       <h1>Playlists</h1>
-      {loading && <p>Loading...</p>}
+      {loading && <Spinner />}
       {playlists.map((item: Playlist, idx) => {
         return (
           <Link
