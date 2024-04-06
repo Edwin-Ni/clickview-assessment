@@ -14,7 +14,6 @@ import {
   Row,
   Spinner,
 } from "react-bootstrap";
-import { exit } from "process";
 
 export default function PlaylistIdPage({ params }: { params: { id: string } }) {
   const [videos, setVideos] = useState([]);
@@ -96,7 +95,7 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
           <h1>{playlist?.name}</h1>
           <h3>{playlist?.description}</h3>
           <Button variant="warning" onClick={handleModalOpen} className="mt-2">
-            Add a video
+            Add to playlist
           </Button>
         </Container>
       )}
@@ -125,7 +124,7 @@ export default function PlaylistIdPage({ params }: { params: { id: string } }) {
         }
       })}
 
-      <Modal show={modal} onHide={handleModalClose}>
+      <Modal show={modal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Add a video</Modal.Title>
         </Modal.Header>
